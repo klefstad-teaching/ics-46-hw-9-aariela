@@ -34,16 +34,53 @@ bool is_adjacent(const string& word1, const string& word2) {
     return edit_distance_within(word1, word2, 1) && word1 != word2;
 }
 
-// vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
+vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
+    queue<vector<string>> ladder_queue;
+    set<string> visited;
 
-// }
+    ladder_queue.push({begin_word});
+    visited.insert(begin_word);
+
+    while (!ladder_queue.empty()) {
+        vector<string> ladder = ladder_queue.front();
+        ladder_queue.pop();
+
+        string last_word = ladder.back();
+
+        for (const string& word : word_list) {
+            if (is_adjacent(last_word, word)) {
+                if (visited.find(word) == visited.end()) {
+                    visited.insert(word);
+                    vector<string> new_ladder = ladder;
+                    new_ladder.push_back(word);
+
+                    if (word == end_word) {
+                        return new_ladder;
+                    }
+
+                    ladder_queue.push(new_ladder);
+                }
+            }
+        }
+    }
+
+    return {};
+}
 
 void load_words(set<string> & word_list, const string& file_name) {
-
+    
 }
 
 void print_word_ladder(const vector<string>& ladder) {
-
+    if (ladder.empty()) {
+        cout << "No word ladder found." << endl;
+        return;
+    }
+    for (size_t i = 0; i < ladder.size(); ++i) {
+        cout << ladder[i];
+        if (i != ladder.size() - 1) cout << " -> ";
+    }
+    cout << endl;
 }
 
 void verify_word_ladder() {

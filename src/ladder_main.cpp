@@ -20,6 +20,11 @@ int main() {
     assert(is_adjacent("code", "code") == false);
     assert(is_adjacent("code", "data") == false);
 
+    cout << "\nRunning generate_word_ladder() test..." << endl;
+    set<string> dictionary = {"cade", "cate", "date", "data"};
+    vector<string> result = generate_word_ladder("cade", "data", dictionary);
+    print_word_ladder(result);
+
     cout << "\nAll tests completed successfully." << endl;
     return 0;
 }
