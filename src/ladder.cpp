@@ -4,6 +4,9 @@
 
 using namespace std;
 
+vector<string> global_ladder;
+set<string> global_word_list;
+
 void error(string word1, string word2, string msg) {
     cout << "Error: " << msg << " between '" << word1 << "' and '" << word2 << "'." << endl;
     return;
@@ -68,7 +71,16 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
 }
 
 void load_words(set<string> & word_list, const string& file_name) {
-    
+    ifstream file(file_name);
+    if (!file.is_open()) {
+        cout << "Failed to open file: " << file_name << endl;
+        return;
+    }
+    string word;
+    while (file >> word) {
+        word_list.insert(word);
+    }
+    file.close();
 }
 
 void print_word_ladder(const vector<string>& ladder) {
@@ -84,5 +96,18 @@ void print_word_ladder(const vector<string>& ladder) {
 }
 
 void verify_word_ladder() {
-
+    if (global_ladder.empty()) {
+        cout << "Ladder is empty. Cannot verify." << endl;
+        return;
+    }
+    for (size_t i = 0; i < global_ladder.size(); ++i) {
+        if (global_word_list.find(global_ladder[i]) == global_word_list.end()) {
+            error(global_ladder[i], "", "Word not in dictionary");
+            return;
+        }
+        if (i > 0 && !is_adjacent(global_ladder[i-1], global_ladder[i])) {
+            error(global_ladder[i-1], global_ladder[i], "Invalid transition");
+            return;
+        }
+    }
 }
