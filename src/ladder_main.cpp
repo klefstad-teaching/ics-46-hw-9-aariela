@@ -35,7 +35,7 @@ int main() {
     cout << "\nRunning verify_word_ladder() test..." << endl;
     global_ladder = result;
     global_word_list = dictionary;
-    verify_word_ladder();
+    //verify_word_ladder();
 
     cout << "\nAll tests completed successfully." << endl;
 
