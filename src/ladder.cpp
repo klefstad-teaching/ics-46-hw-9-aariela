@@ -34,7 +34,7 @@ bool edit_distance_within(const std::string& str1, const std::string& str2, int 
 }
 
 bool is_adjacent(const string& word1, const string& word2) {
-    return edit_distance_within(word1, word2, 1) && word1 != word2;
+    return edit_distance_within(word1, word2, 1);
 }
 
 vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
@@ -88,18 +88,19 @@ void print_word_ladder(const vector<string>& ladder) {
         cout << "No word ladder found." << endl;
         return;
     }
-    for (size_t i = 0; i < ladder.size(); ++i) {
-        cout << ladder[i];
-        if (i != ladder.size() - 1) cout << " -> ";
+    cout << "Word ladder found: ";
+    for (const string& word : ladder) {
+        cout << word << " ";
     }
-    cout << endl;
+    cout << "\n";
 }
 
 void verify_word_ladder() {
-    if (global_ladder.empty()) {
+   if (global_ladder.empty()) {
         cout << "Ladder is empty. Cannot verify." << endl;
         return;
     }
+
     for (size_t i = 0; i < global_ladder.size(); ++i) {
         if (global_word_list.find(global_ladder[i]) == global_word_list.end()) {
             error(global_ladder[i], "", "Word not in dictionary");
@@ -110,4 +111,6 @@ void verify_word_ladder() {
             return;
         }
     }
+
+    cout << "Word ladder verified successfully." << endl;
 }
