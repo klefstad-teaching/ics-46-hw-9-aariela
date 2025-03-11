@@ -51,6 +51,7 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
         string last_word = ladder.back();
 
         for (const string& word : word_list) {
+            if (visited.find(word) != visited.end()) continue;
             if (is_adjacent(last_word, word)) {
                 if (visited.find(word) == visited.end()) {
                     visited.insert(word);
@@ -95,19 +96,38 @@ void print_word_ladder(const vector<string>& ladder) {
     cout << "\n";
 }
 
-void verify_word_ladder() {
-   if (global_ladder.empty()) {
+// void verify_word_ladder() {
+//    if (global_ladder.empty()) {
+//         cout << "Ladder is empty. Cannot verify." << endl;
+//         return;
+//     }
+
+//     for (size_t i = 0; i < global_ladder.size(); ++i) {
+//         if (global_word_list.find(global_ladder[i]) == global_word_list.end()) {
+//             error(global_ladder[i], "", "Word not in dictionary");
+//             return;
+//         }
+//         if (i > 0 && !is_adjacent(global_ladder[i-1], global_ladder[i])) {
+//             error(global_ladder[i-1], global_ladder[i], "Invalid transition");
+//             return;
+//         }
+//     }
+
+//     cout << "Word ladder verified successfully." << endl;
+// }
+void verify_word_ladder(const vector<string>& ladder, const set<string>& word_list) {
+    if (ladder.empty()) {
         cout << "Ladder is empty. Cannot verify." << endl;
         return;
     }
 
-    for (size_t i = 0; i < global_ladder.size(); ++i) {
-        if (global_word_list.find(global_ladder[i]) == global_word_list.end()) {
-            error(global_ladder[i], "", "Word not in dictionary");
+    for (size_t i = 0; i < ladder.size(); ++i) {
+        if (word_list.find(ladder[i]) == word_list.end()) {
+            error(ladder[i], "", "Word not in dictionary");
             return;
         }
-        if (i > 0 && !is_adjacent(global_ladder[i-1], global_ladder[i])) {
-            error(global_ladder[i-1], global_ladder[i], "Invalid transition");
+        if (i > 0 && !is_adjacent(ladder[i-1], ladder[i])) {
+            error(ladder[i-1], ladder[i], "Invalid transition");
             return;
         }
     }
