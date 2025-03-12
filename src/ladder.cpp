@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include <unordered_set> 
+#include <unordered_map> 
 
 using namespace std;
 
@@ -142,14 +143,7 @@ bool is_adjacent(const string& word1, const string& word2) {
 
 //     return {};
 // }
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <unordered_set>
-#include <queue>
-#include <string>
 
-using namespace std;
 
 vector<string> generate_word_ladder(const string& beginWord, const string& endWord, const set<string>& word_list) {
     if (beginWord == endWord) {
