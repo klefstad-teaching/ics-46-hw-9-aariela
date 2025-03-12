@@ -169,6 +169,11 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
             vector<string> current_ladder = ladder_queue.front();
             ladder_queue.pop();
 
+            if (current_ladder.size() > 1000) {
+                cout << "Stopping: ladder exceeded max depth (1000).\n";
+                return {};
+            }
+
             string last_word = current_ladder.back();
 
             for (const string& word : word_list) {
