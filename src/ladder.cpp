@@ -4,8 +4,8 @@
 
 using namespace std;
 
-vector<string> global_ladder;
-set<string> global_word_list;
+// vector<string> global_ladder;
+// set<string> global_word_list;
 
 void error(string word1, string word2, string msg) {
     cout << "Error: " << msg << " between '" << word1 << "' and '" << word2 << "'." << endl;
@@ -33,17 +33,18 @@ bool edit_distance_within(const std::string& str1, const std::string& str2, int 
     return dp[m][n] <= d;
 }
 
-// bool is_adjacent(const string& word1, const string& word2) {
-//     return edit_distance_within(word1, word2, 1);
-// }
 bool is_adjacent(const string& word1, const string& word2) {
-    if (word1 == word2) return false;
     return edit_distance_within(word1, word2, 1);
 }
 
 vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
    if (begin_word == end_word) {
         error(begin_word, end_word, "Start and end words are the same");
+        return {};
+    }
+
+    if (word_list.find(end_word) == word_list.end()) {
+        error(begin_word, end_word, "End word not in dictionary");
         return {};
     }
 
@@ -55,6 +56,16 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
     while (!ladder_queue.empty()) {
         vector<string> current_ladder = ladder_queue.front();
         ladder_queue.pop();
+
+        if (current_ladder.size() > 20) {
+            cout << "Stopping early: ladder length exceeded 20. Possible infinite loop.\n";
+            break;
+        }
+
+        cout << "Current ladder (size " << current_ladder.size() << "): ";
+        for (const auto& word : current_ladder) cout << word << " ";
+        cout << endl;
+
 
         string last_word = current_ladder.back();
 
@@ -69,12 +80,12 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
             }
 
             ladder_queue.push(new_ladder);
-            visited.insert(word); // mark as visited after queue push to prevent reuse
+            visited.insert(word); 
         }
     }
 
     return {};
-
+}
     // queue<vector<string>> ladder_queue;
     // set<string> visited;
 
@@ -106,7 +117,7 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
     // }
 
     // return {};
-}
+
 
 void load_words(set<string> & word_list, const string& file_name) {
     ifstream file(file_name);
@@ -133,25 +144,6 @@ void print_word_ladder(const vector<string>& ladder) {
     cout << "\n";
 }
 
-// void verify_word_ladder() {
-//    if (global_ladder.empty()) {
-//         cout << "Ladder is empty. Cannot verify." << endl;
-//         return;
-//     }
-
-//     for (size_t i = 0; i < global_ladder.size(); ++i) {
-//         if (global_word_list.find(global_ladder[i]) == global_word_list.end()) {
-//             error(global_ladder[i], "", "Word not in dictionary");
-//             return;
-//         }
-//         if (i > 0 && !is_adjacent(global_ladder[i-1], global_ladder[i])) {
-//             error(global_ladder[i-1], global_ladder[i], "Invalid transition");
-//             return;
-//         }
-//     }
-
-//     cout << "Word ladder verified successfully." << endl;
-// }
 void verify_word_ladder(const vector<string>& ladder, const set<string>& word_list) {
     if (ladder.empty()) {
         cout << "Ladder is empty. Cannot verify." << endl;
