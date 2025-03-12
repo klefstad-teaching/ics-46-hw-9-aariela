@@ -145,54 +145,50 @@ bool is_adjacent(const string& word1, const string& word2) {
 // }
 
 
-vector<string> generate_word_ladder(const string& beginWord, const string& endWord, const set<string>& word_list) {
-    if (beginWord == endWord) {
+vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
+    if (begin_word == end_word) {
         cout << "Error: Start and end words are the same.\n";
         return {};
     }
 
-    if (word_list.find(endWord) == word_list.end()) {
+    if (word_list.find(end_word) == word_list.end()) {
         cout << "Error: End word not in dictionary.\n";
         return {};
     }
 
-    unordered_set<string> dict(word_list.begin(), word_list.end());
-    queue<vector<string>> q;
-    q.push({beginWord});
+    queue<vector<string>> ladder_queue;
+    set<string> visited;
+    ladder_queue.push({begin_word});
+    visited.insert(begin_word);
 
-    while (!q.empty()) {
-        int size = q.size();
-        unordered_set<string> words_used_this_level;
+    while (!ladder_queue.empty()) {
+        int level_size = ladder_queue.size();
+        set<string> this_level_visited;
 
-        for (int i = 0; i < size; ++i) {
-            vector<string> path = q.front(); q.pop();
-            string current_word = path.back();
+        for (int i = 0; i < level_size; ++i) {
+            vector<string> current_ladder = ladder_queue.front();
+            ladder_queue.pop();
 
-            for (int j = 0; j < current_word.length(); ++j) {
-                string temp_word = current_word;
-                char original_char = temp_word[j];
+            string last_word = current_ladder.back();
 
-                for (char c = 'a'; c <= 'z'; ++c) {
-                    if (temp_word[j] == c) continue;
-                    temp_word[j] = c;
+            for (const string& word : word_list) {
+                if (visited.count(word)) continue;
+                if (!is_adjacent(last_word, word)) continue;
 
-                    if (temp_word == endWord) {
-                        path.push_back(endWord);
-                        return path;
-                    }
+                vector<string> new_ladder = current_ladder;
+                new_ladder.push_back(word);
 
-                    if (dict.count(temp_word)) {
-                        vector<string> new_path = path;
-                        new_path.push_back(temp_word);
-                        q.push(new_path);
-                        words_used_this_level.insert(temp_word);
-                    }
+                if (word == end_word) {
+                    return new_ladder;
                 }
+
+                ladder_queue.push(new_ladder);
+                this_level_visited.insert(word);
             }
         }
 
-        for (const string& word : words_used_this_level) {
-            dict.erase(word);
+        for (const string& word : this_level_visited) {
+            visited.insert(word);
         }
     }
 
