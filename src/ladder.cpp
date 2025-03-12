@@ -1,6 +1,7 @@
 #include "ladder.h"
 #include <iostream>
 #include <cmath>
+#include <unordered_set> 
 
 using namespace std;
 
@@ -38,7 +39,7 @@ bool is_adjacent(const string& word1, const string& word2) {
 }
 
 vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
-   if (begin_word == end_word) {
+    if (begin_word == end_word) {
         error(begin_word, end_word, "Start and end words are the same");
         return {};
     }
@@ -48,44 +49,50 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
         return {};
     }
 
-    queue<vector<string>> ladder_queue;
-    set<string> visited;
-    ladder_queue.push({begin_word});
+    unordered_set<string> dict(word_list.begin(), word_list.end());
+    queue<vector<string>> q;
+    q.push({begin_word});
+    unordered_set<string> visited;
     visited.insert(begin_word);
 
-    while (!ladder_queue.empty()) {
-        vector<string> current_ladder = ladder_queue.front();
-        ladder_queue.pop();
+    while (!q.empty()) {
+        int qSize = q.size();
+        unordered_set<string> this_level_visited;
 
-        if (current_ladder.size() > 20) {
-            cout << "Stopping early: ladder length exceeded 20. Possible infinite loop.\n";
-            break;
-        }
+        for (int i = 0; i < qSize; ++i) {
+            vector<string> path = q.front(); q.pop();
+            string last_word = path.back();
 
-        cout << "Current ladder (size " << current_ladder.size() << "): ";
-        for (const auto& word : current_ladder) cout << word << " ";
-        cout << endl;
+            for (int j = 0; j < last_word.size(); ++j) {
+                string new_word = last_word;
+                for (char c = 'a'; c <= 'z'; ++c) {
+                    if (c == last_word[j]) continue;
+                    new_word[j] = c;
 
+                    if (dict.find(new_word) == dict.end()) continue;
 
-        string last_word = current_ladder.back();
+                    if (new_word == end_word) {
+                        path.push_back(new_word);
+                        return path;
+                    }
 
-        for (const string& word : word_list) {
-            if (visited.count(word) || !is_adjacent(last_word, word)) continue;
-
-            vector<string> new_ladder = current_ladder;
-            new_ladder.push_back(word);
-
-            if (word == end_word) {
-                return new_ladder;
+                    if (visited.find(new_word) == visited.end()) {
+                        vector<string> new_path = path;
+                        new_path.push_back(new_word);
+                        q.push(new_path);
+                        this_level_visited.insert(new_word);
+                    }
+                }
             }
-
-            ladder_queue.push(new_ladder);
-            visited.insert(word); 
         }
+
+        for (const auto& word : this_level_visited)
+            visited.insert(word);
     }
 
     return {};
 }
+
     // queue<vector<string>> ladder_queue;
     // set<string> visited;
 
