@@ -156,60 +156,49 @@ vector<string> generate_word_ladder(const string& beginWord, const string& endWo
         return {};
     }
 
-    unordered_set<string> wordSet(word_list.begin(), word_list.end());
-    wordSet.insert(beginWord);
-
-    unordered_map<string, vector<string>> patternMap;
-    int wordLen = beginWord.length();
-
-    // Build pattern map (e.g., h*t -> [hot, hat])
-    for (const string& word : wordSet) {
-        for (int i = 0; i < wordLen; ++i) {
-            string pattern = word.substr(0, i) + "*" + word.substr(i + 1);
-            patternMap[pattern].push_back(word);
-        }
-    }
-
-    // BFS
-    unordered_set<string> visited;
+    unordered_set<string> dict(word_list.begin(), word_list.end());
     queue<vector<string>> q;
     q.push({beginWord});
-    visited.insert(beginWord);
 
     while (!q.empty()) {
-        int levelSize = q.size();
-        unordered_set<string> thisLevelVisited;
+        int size = q.size();
+        unordered_set<string> words_used_this_level;
 
-        for (int i = 0; i < levelSize; ++i) {
+        for (int i = 0; i < size; ++i) {
             vector<string> path = q.front(); q.pop();
-            string lastWord = path.back();
+            string current_word = path.back();
 
-            for (int j = 0; j < wordLen; ++j) {
-                string pattern = lastWord.substr(0, j) + "*" + lastWord.substr(j + 1);
+            for (int j = 0; j < current_word.length(); ++j) {
+                string temp_word = current_word;
+                char original_char = temp_word[j];
 
-                for (const string& neighbor : patternMap[pattern]) {
-                    if (visited.count(neighbor)) continue;
+                for (char c = 'a'; c <= 'z'; ++c) {
+                    if (temp_word[j] == c) continue;
+                    temp_word[j] = c;
 
-                    vector<string> newPath = path;
-                    newPath.push_back(neighbor);
-
-                    if (neighbor == endWord) {
-                        return newPath;
+                    if (temp_word == endWord) {
+                        path.push_back(endWord);
+                        return path;
                     }
 
-                    q.push(newPath);
-                    thisLevelVisited.insert(neighbor);
+                    if (dict.count(temp_word)) {
+                        vector<string> new_path = path;
+                        new_path.push_back(temp_word);
+                        q.push(new_path);
+                        words_used_this_level.insert(temp_word);
+                    }
                 }
             }
         }
 
-        // Update visited after this level to avoid revisiting across parallel paths
-        for (const string& word : thisLevelVisited)
-            visited.insert(word);
+        for (const string& word : words_used_this_level) {
+            dict.erase(word);
+        }
     }
 
     return {};
 }
+
 
 
 void load_words(set<string> & word_list, const string& file_name) {
