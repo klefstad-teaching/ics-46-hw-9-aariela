@@ -93,51 +93,125 @@ bool is_adjacent(const string& word1, const string& word2) {
 //     return {};
 // }
 
- vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
-    if (begin_word == end_word) {
-        error(begin_word, end_word, "Start and end words are the same");
+//  vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
+//     if (begin_word == end_word) {
+//         error(begin_word, end_word, "Start and end words are the same");
+//         return {};
+//     }
+
+//     if (word_list.find(end_word) == word_list.end()) {
+//         error(begin_word, end_word, "End word not in dictionary");
+//         return {};
+//     }
+
+//     queue<vector<string>> ladder_queue;
+//     set<string> visited;
+//     ladder_queue.push({begin_word});
+//     visited.insert(begin_word);
+
+//     while (!ladder_queue.empty()) {
+//         int level_size = ladder_queue.size();
+//         set<string> this_level_visited;
+
+//         for (int i = 0; i < level_size; ++i) {
+//             vector<string> current_ladder = ladder_queue.front();
+//             ladder_queue.pop();
+
+//             string last_word = current_ladder.back();
+
+//             for (const string& word : word_list) {
+//                 if (visited.count(word) || !is_adjacent(last_word, word)) continue;
+
+//                 vector<string> new_ladder = current_ladder;
+//                 new_ladder.push_back(word);
+
+//                 if (word == end_word) {
+//                     return new_ladder;
+//                 }
+
+//                 ladder_queue.push(new_ladder);
+//                 this_level_visited.insert(word);  // mark it only for this level
+//             }
+//         }
+
+//         // After exploring the entire level, now mark words as visited
+//         for (const string& word : this_level_visited) {
+//             visited.insert(word);
+//         }
+//     }
+
+//     return {};
+// }
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <queue>
+#include <string>
+
+using namespace std;
+
+vector<string> generate_word_ladder(const string& beginWord, const string& endWord, const set<string>& word_list) {
+    if (beginWord == endWord) {
+        cout << "Error: Start and end words are the same.\n";
         return {};
     }
 
-    if (word_list.find(end_word) == word_list.end()) {
-        error(begin_word, end_word, "End word not in dictionary");
+    if (word_list.find(endWord) == word_list.end()) {
+        cout << "Error: End word not in dictionary.\n";
         return {};
     }
 
-    queue<vector<string>> ladder_queue;
-    set<string> visited;
-    ladder_queue.push({begin_word});
-    visited.insert(begin_word);
+    unordered_set<string> wordSet(word_list.begin(), word_list.end());
+    wordSet.insert(beginWord);
 
-    while (!ladder_queue.empty()) {
-        int level_size = ladder_queue.size();
-        set<string> this_level_visited;
+    unordered_map<string, vector<string>> patternMap;
+    int wordLen = beginWord.length();
 
-        for (int i = 0; i < level_size; ++i) {
-            vector<string> current_ladder = ladder_queue.front();
-            ladder_queue.pop();
+    // Build pattern map (e.g., h*t -> [hot, hat])
+    for (const string& word : wordSet) {
+        for (int i = 0; i < wordLen; ++i) {
+            string pattern = word.substr(0, i) + "*" + word.substr(i + 1);
+            patternMap[pattern].push_back(word);
+        }
+    }
 
-            string last_word = current_ladder.back();
+    // BFS
+    unordered_set<string> visited;
+    queue<vector<string>> q;
+    q.push({beginWord});
+    visited.insert(beginWord);
 
-            for (const string& word : word_list) {
-                if (visited.count(word) || !is_adjacent(last_word, word)) continue;
+    while (!q.empty()) {
+        int levelSize = q.size();
+        unordered_set<string> thisLevelVisited;
 
-                vector<string> new_ladder = current_ladder;
-                new_ladder.push_back(word);
+        for (int i = 0; i < levelSize; ++i) {
+            vector<string> path = q.front(); q.pop();
+            string lastWord = path.back();
 
-                if (word == end_word) {
-                    return new_ladder;
+            for (int j = 0; j < wordLen; ++j) {
+                string pattern = lastWord.substr(0, j) + "*" + lastWord.substr(j + 1);
+
+                for (const string& neighbor : patternMap[pattern]) {
+                    if (visited.count(neighbor)) continue;
+
+                    vector<string> newPath = path;
+                    newPath.push_back(neighbor);
+
+                    if (neighbor == endWord) {
+                        return newPath;
+                    }
+
+                    q.push(newPath);
+                    thisLevelVisited.insert(neighbor);
                 }
-
-                ladder_queue.push(new_ladder);
-                this_level_visited.insert(word);  // mark it only for this level
             }
         }
 
-        // After exploring the entire level, now mark words as visited
-        for (const string& word : this_level_visited) {
+        // Update visited after this level to avoid revisiting across parallel paths
+        for (const string& word : thisLevelVisited)
             visited.insert(word);
-        }
     }
 
     return {};
